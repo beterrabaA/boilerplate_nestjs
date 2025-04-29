@@ -24,6 +24,7 @@ model User {
   updatedAt        DateTime          @updatedAt
   adminPermissions AdminPermission[]
   files            File[]
+  Post             Post[]
 
   @@map("users")
 }
@@ -67,6 +68,7 @@ model Post {
   body        String   @db.LongText()
   published   Boolean  @default(false)
   authorId    Int
+  user        User     @relation(fields: [authorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
