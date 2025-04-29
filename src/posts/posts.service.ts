@@ -8,42 +8,89 @@ export class PostsService {
   constructor(private readonly _prisma: PrismaService) {}
 
   async create(createPostDto: CreatePostDto) {
-    return await this._prisma.post.create({
-      data: {
-        title: createPostDto.title,
-        description: createPostDto.description,
-        body: createPostDto.body,
-        published: createPostDto.published,
-        authorId: createPostDto.authorId,
-      },
-    });
+    try {
+      return await this._prisma.post.create({
+        data: {
+          title: createPostDto.title,
+          description: createPostDto.description,
+          body: createPostDto.body,
+          published: createPostDto.published,
+          authorId: createPostDto.authorId,
+        },
+      });
+    } catch (error) {
+      console.error('service layer - Error creating post:', error);
+      throw new Error('Failed to create post');
+    }
+  }
+
+  async findAllByAuthorId(authorId: number) {
+    try {
+      return await this._prisma.post.findMany({
+        where: { authorId },
+      });
+    } catch (error) {
+      console.error('service layer - Error fetching posts by author:', error);
+      throw new Error('Failed to fetch posts by author');
+    }
+  }
+
+  async findAllByPublished() {
+    try {
+      return await this._prisma.post.findMany({
+        where: { published: true },
+      });
+    } catch (error) {
+      console.error('service layer - Error fetching published posts:', error);
+      throw new Error('Failed to fetch published posts');
+    }
   }
 
   async findAll() {
-    return await this._prisma.post.findMany();
+    try {
+      return await this._prisma.post.findMany();
+    } catch (error) {
+      console.error('service layer - Error fetching posts:', error);
+      throw new Error('Failed to fetch posts');
+    }
   }
 
   async findOne(id: number) {
-    return await this._prisma.post.findUnique({
-      where: { id },
-    });
+    try {
+      return await this._prisma.post.findUnique({
+        where: { id },
+      });
+    } catch (error) {
+      console.error('service layer - Error fetching post:', error);
+      throw new Error('Failed to fetch post');
+    }
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
-    return await this._prisma.post.update({
-      where: { id },
-      data: {
-        title: updatePostDto.title,
-        description: updatePostDto.description,
-        body: updatePostDto.body,
-        published: updatePostDto.published,
-      },
-    });
+  async update(id: number, updatePostDto: UpdatePostDto, authorId: number) {
+    try {
+      return await this._prisma.post.update({
+        where: { id, authorId },
+        data: {
+          title: updatePostDto.title,
+          description: updatePostDto.description,
+          body: updatePostDto.body,
+          published: updatePostDto.published,
+        },
+      });
+    } catch (error) {
+      console.error('service layer - Error updating post:', error);
+      throw new Error('Failed to update post');
+    }
   }
 
-  async remove(id: number) {
-    return this._prisma.post.delete({
-      where: { id },
-    });
+  async remove(id: number, authorId: number) {
+    try {
+      return this._prisma.post.delete({
+        where: { id, authorId },
+      });
+    } catch (error) {
+      console.error('service layer - Error deleting post:', error);
+      throw new Error('Failed to delete post');
+    }
   }
 }

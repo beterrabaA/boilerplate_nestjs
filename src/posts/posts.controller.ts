@@ -31,6 +31,28 @@ export class PostsController {
     }
   }
 
+  @Get('own')
+  findAllByAuthorId(@Request() req) {
+    const authorId = req.user.id;
+
+    try {
+      return this.postsService.findAllByAuthorId(+authorId);
+    } catch (error) {
+      console.error('Error fetching posts by author:', error);
+      throw new BadRequestException('Failed to fetch posts by author');
+    }
+  }
+
+  @Get('published')
+  findAllByPublished() {
+    try {
+      return this.postsService.findAllByPublished();
+    } catch (error) {
+      console.error('Error fetching published posts:', error);
+      throw new BadRequestException('Failed to fetch published posts');
+    }
+  }
+
   @Get()
   findAll() {
     try {
@@ -56,9 +78,10 @@ export class PostsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, @Request() req) {
     try {
-      return this.postsService.update(+id, updatePostDto);
+      const authorId = req.user.id;
+      return this.postsService.update(+id, updatePostDto, +authorId);
     } catch (error) {
       console.error('Error updating post:', error);
       throw new BadRequestException('Failed to update post');
@@ -66,9 +89,10 @@ export class PostsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @Request() req) {
+    const authorId = req.user.id;
     try {
-      return this.postsService.remove(+id);
+      return this.postsService.remove(+id, +authorId);
     } catch (error) {
       console.error('Error deleting post:', error);
       throw new BadRequestException('Failed to delete post');
