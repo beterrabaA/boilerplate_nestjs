@@ -60,6 +60,19 @@ model Text {
   @@map("texts")
 }
 
+model Post {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(100)
+  description String   @db.VarChar(100)
+  body        String   @db.LongText()
+  published   Boolean  @default(false)
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("posts")
+}
+
 enum Role {
   Master
   Admin
