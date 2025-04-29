@@ -9,6 +9,8 @@ import {
   NotFoundException,
   BadRequestException,
   Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -19,6 +21,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() createPostDto: CreatePostDto, @Request() req) {
     const userId = req.user.id;
     createPostDto.authorId = userId;
@@ -78,6 +81,7 @@ export class PostsController {
   }
 
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, @Request() req) {
     try {
       const authorId = req.user.id;
@@ -89,10 +93,14 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string, @Request() req) {
     const authorId = req.user.id;
     try {
-      return this.postsService.remove(+id, +authorId);
+      const currentPost = this.postsService.remove(+id, +authorId);
+      if (!currentPost) {
+        throw new NotFoundException('Post not found or does not belong to the user');
+      }
     } catch (error) {
       console.error('Error deleting post:', error);
       throw new BadRequestException('Failed to delete post');
